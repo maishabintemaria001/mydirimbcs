@@ -1,0 +1,6 @@
+{
+  "name": "Prerona Exam Portal",
+  "description": "Comprehensive Bangladeshi Online Exam Preparation & Previous Year Question Bank platform featuring BCS, Bank, Primary and Govt recruitment questions, MCQ practice, live timed exams, and premium packages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
