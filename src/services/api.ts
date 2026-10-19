@@ -2,7 +2,11 @@ const BASE_URL = '/api/v1';
 
 export class ApiClient {
   private static getToken(): string | null {
-    return localStorage.getItem('prerona_auth_token') || 'usr_admin'; // default to demo admin for seamless zero-barrier testing
+    const token = localStorage.getItem('prerona_auth_token');
+    if (!token || token === 'guest' || token === 'none' || token === '') {
+      return null;
+    }
+    return token;
   }
 
   public static setToken(token: string) {
@@ -11,6 +15,7 @@ export class ApiClient {
 
   public static removeToken() {
     localStorage.removeItem('prerona_auth_token');
+    localStorage.setItem('prerona_auth_token', 'guest');
   }
 
   private static async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
@@ -42,6 +47,22 @@ export class ApiClient {
   // Public APIs
   public static getHomeData() {
     return this.request<{ status: string; data: any }>('/home');
+  }
+
+  public static searchGlobal(q: string, type: string = 'all', limit: number = 50) {
+    const params = new URLSearchParams({ q, type, limit: String(limit) });
+    return this.request<{
+      status: string;
+      data: {
+        query: string;
+        total: number;
+        categories: any[];
+        subjects: any[];
+        exams: any[];
+        papers: any[];
+        questions: any[];
+      };
+    }>(`/search?${params.toString()}`);
   }
 
   public static getTopPerformers(params: Record<string, string> = {}) {
@@ -108,15 +129,29 @@ export class ApiClient {
   }
 
   // Auth & Profile
-  public static login(email: string, password: string) {
-    return this.request<{ status: string; token: string; user: any }>('/auth/login', {
+  public static login(identifier: string, password: string) {
+    return this.request<{ status: string; message?: string; token: string; user: any; active_entitlement?: any }>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier, password }),
     });
   }
 
-  public static register(payload: { name: string; email: string; password: string; phone?: string }) {
-    return this.request<{ status: string; token: string; user: any }>('/auth/register', {
+  public static register(payload: { name: string; email: string; password: string; phone?: string; track?: string }) {
+    return this.request<{ status: string; message?: string; token: string; user: any }>('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  public static forgotPassword(identifier: string) {
+    return this.request<{ status: string; message: string; otp?: string; target?: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ identifier }),
+    });
+  }
+
+  public static resetPassword(payload: { identifier: string; otp: string; new_password: string }) {
+    return this.request<{ status: string; message: string; token: string; user: any }>('/auth/reset-password', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -127,7 +162,7 @@ export class ApiClient {
   }
 
   public static switchDemoRole(role: string) {
-    return this.request<{ status: string; token: string; user: any }>('/auth/switch-demo-role', {
+    return this.request<{ status: string; token: string; user: any; active_entitlement?: any }>('/auth/switch-demo-role', {
       method: 'POST',
       body: JSON.stringify({ role }),
     });

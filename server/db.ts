@@ -178,9 +178,16 @@ export interface UserEntitlement {
 export interface AdSetting {
   adsense_enabled: boolean;
   publisher_id: string;
+  auto_ads: boolean;
+  test_mode: boolean;
+  header_ad_enabled: boolean;
   header_slot_id: string;
+  sidebar_ad_enabled: boolean;
   sidebar_slot_id: string;
+  content_ad_enabled: boolean;
   content_slot_id: string;
+  footer_ad_enabled: boolean;
+  footer_slot_id: string;
 }
 
 export interface SponsorCampaign {
@@ -1187,9 +1194,16 @@ function getInitialData(): DatabaseSchema {
   const ad_settings: AdSetting = {
     adsense_enabled: true,
     publisher_id: 'ca-pub-9847291847192841',
+    auto_ads: true,
+    test_mode: false,
+    header_ad_enabled: true,
     header_slot_id: 'slot_header_728x90',
+    sidebar_ad_enabled: true,
     sidebar_slot_id: 'slot_sidebar_300x250',
+    content_ad_enabled: true,
     content_slot_id: 'slot_inarticle_fluid',
+    footer_ad_enabled: true,
+    footer_slot_id: 'slot_footer_leaderboard',
   };
 
   const sponsor_campaigns: SponsorCampaign[] = [

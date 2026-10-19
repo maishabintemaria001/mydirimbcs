@@ -17,13 +17,23 @@ import {
   TrendingUp,
   FileText,
   Lock,
-  Award
+  Award,
+  HelpCircle,
+  LayoutDashboard,
+  Shield,
+  UserCheck
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext.js';
+import { FreeAccessGuideModal } from '../components/FreeAccessGuideModal.js';
+import { AuthModal } from '../components/AuthModal.js';
 
 export const HomePage: React.FC = () => {
+  const { user } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [freeGuideOpen, setFreeGuideOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,9 +51,9 @@ export const HomePage: React.FC = () => {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/questions?q=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     } else {
-      navigate('/questions');
+      navigate('/search');
     }
   };
 
@@ -167,6 +177,90 @@ export const HomePage: React.FC = () => {
             <p className="text-2xl font-bold text-slate-900 font-mono-numbers">
               {data?.stats?.active_candidates ? `${data.stats.active_candidates * 250}+` : '35,000+'}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Role & Access Guidance Grid (Free Guest vs Paid Student vs Admin) */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Card 1: Free Guest Access */}
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-200/80 rounded-2xl p-4 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                  লগইন ছাড়াও উন্মুক্ত
+                </span>
+                <HelpCircle className="w-4 h-4 text-emerald-600" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">ফ্রি শিক্ষার্থীদের সুবিধা</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                কোনো অ্যাকাউন্ট বা লগইন ছাড়াই বিগত বছরের প্রশ্নব্যাংক, অফিশিয়াল সরকারি চাকরির সার্কুলার, বিষয়ভিত্তিক সিলেবাস ও ডেমো টেস্ট অনুশীলন করতে পারেন।
+              </p>
+            </div>
+            <div className="pt-3 mt-2 border-t border-emerald-200/60 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => setFreeGuideOpen(true)}
+                className="text-xs font-bold text-emerald-700 hover:text-emerald-900 transition-colors flex items-center gap-1 cursor-pointer"
+              >
+                <span>ফ্রি সুবিধা তালিকা দেখুন</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Card 2: Paid Student Dedicated Dashboard */}
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/80 rounded-2xl p-4 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-900">
+                  স্থায়ী রেকর্ড ও বিশ্লেষণ
+                </span>
+                <Sparkles className="w-4 h-4 text-amber-600" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">পেইড শিক্ষার্থী ড্যাশবোর্ড</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                সকল পরীক্ষার ফলাফল, D3 স্কিলস হিটম্যাপ, বুকমার্ক, স্কোর ট্র্যাকিং ও পেমেন্ট হিস্ট্রি আজীবন সুরক্ষিত থাকে। রেকর্ড কখনো ডিলেট বা নষ্ট হয় না।
+              </p>
+            </div>
+            <div className="pt-3 mt-2 border-t border-amber-200/60 flex items-center justify-between">
+              <Link
+                to="/dashboard"
+                className="text-xs font-bold text-amber-800 hover:text-amber-950 transition-colors flex items-center gap-1"
+              >
+                <span>আমার ড্যাশবোর্ড খুলুন</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/70 px-2 py-0.5 rounded">
+                🔒 অডিটেড রেকর্ড
+              </span>
+            </div>
+          </div>
+
+          {/* Card 3: Admin & Content Manager */}
+          <div className="bg-gradient-to-br from-indigo-50 to-slate-50 border border-indigo-200/80 rounded-2xl p-4 flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-indigo-100 text-indigo-900">
+                  রোল-বেইজড অ্যাক্সেস
+                </span>
+                <Shield className="w-4 h-4 text-indigo-600" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900">এডমিন ও কন্টেন্ট ম্যানেজার</h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                কন্টেন্ট ম্যানেজার প্রশ্ন ও পরীক্ষা পরিচালনা করতে পারেন; অ্যাডমিনিস্ট্রেটর পেমেন্ট অনুমোদন, ইউজার নিয়ন্ত্রণ ও স্পন্সর বিজ্ঞাপন পরিচালনা করেন।
+              </p>
+            </div>
+            <div className="pt-3 mt-2 border-t border-indigo-200/60 flex items-center justify-between">
+              <Link
+                to="/admin"
+                className="text-xs font-bold text-indigo-700 hover:text-indigo-950 transition-colors flex items-center gap-1"
+              >
+                <span>কন্ট্রোল প্যানেল দেখুন</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -540,6 +634,22 @@ export const HomePage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* Modals */}
+      <FreeAccessGuideModal
+        isOpen={freeGuideOpen}
+        onClose={() => setFreeGuideOpen(false)}
+        onOpenLogin={() => {
+          setFreeGuideOpen(false);
+          setAuthModalOpen(true);
+        }}
+      />
+
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        initialTab="login"
+      />
     </div>
   );
 };

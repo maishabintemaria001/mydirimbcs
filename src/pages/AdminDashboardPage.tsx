@@ -73,9 +73,25 @@ export const AdminDashboardPage: React.FC = () => {
   const [examPassMarks, setExamPassMarks] = useState('5');
   const [examNegative, setExamNegative] = useState('0.25');
 
-  // Ad settings state
+  // Google AdSense settings state
   const [adSenseEnabled, setAdSenseEnabled] = useState(true);
-  const [adSensePubId, setAdSensePubId] = useState('');
+  const [adSensePubId, setAdSensePubId] = useState('ca-pub-9847291847192841');
+  const [autoAdsEnabled, setAutoAdsEnabled] = useState(true);
+  const [testModeEnabled, setTestModeEnabled] = useState(false);
+  
+  // Slot toggles and IDs
+  const [headerAdEnabled, setHeaderAdEnabled] = useState(true);
+  const [headerSlotId, setHeaderSlotId] = useState('slot_header_728x90');
+  
+  const [sidebarAdEnabled, setSidebarAdEnabled] = useState(true);
+  const [sidebarSlotId, setSidebarSlotId] = useState('slot_sidebar_300x250');
+  
+  const [contentAdEnabled, setContentAdEnabled] = useState(true);
+  const [contentSlotId, setContentSlotId] = useState('slot_inarticle_fluid');
+  
+  const [footerAdEnabled, setFooterAdEnabled] = useState(true);
+  const [footerSlotId, setFooterSlotId] = useState('slot_footer_leaderboard');
+  
   const [newSponsorModal, setNewSponsorModal] = useState(false);
   const [spnTitle, setSpnTitle] = useState('');
   const [spnClient, setSpnClient] = useState('');
@@ -112,8 +128,18 @@ export const AdminDashboardPage: React.FC = () => {
       setAuditLogs(aud.data);
 
       if (ads.data?.settings) {
-        setAdSenseEnabled(ads.data.settings.adsense_enabled);
-        setAdSensePubId(ads.data.settings.publisher_id);
+        setAdSenseEnabled(ads.data.settings.adsense_enabled !== false);
+        setAdSensePubId(ads.data.settings.publisher_id || 'ca-pub-9847291847192841');
+        setAutoAdsEnabled(ads.data.settings.auto_ads !== false);
+        setTestModeEnabled(Boolean(ads.data.settings.test_mode));
+        setHeaderAdEnabled(ads.data.settings.header_ad_enabled !== false);
+        setHeaderSlotId(ads.data.settings.header_slot_id || 'slot_header_728x90');
+        setSidebarAdEnabled(ads.data.settings.sidebar_ad_enabled !== false);
+        setSidebarSlotId(ads.data.settings.sidebar_slot_id || 'slot_sidebar_300x250');
+        setContentAdEnabled(ads.data.settings.content_ad_enabled !== false);
+        setContentSlotId(ads.data.settings.content_slot_id || 'slot_inarticle_fluid');
+        setFooterAdEnabled(ads.data.settings.footer_ad_enabled !== false);
+        setFooterSlotId(ads.data.settings.footer_slot_id || 'slot_footer_leaderboard');
       }
     } catch (e) {
       console.error('Failed to load admin data', e);
@@ -254,12 +280,22 @@ export const AdminDashboardPage: React.FC = () => {
     try {
       await ApiClient.updateAdSettings({
         adsense_enabled: adSenseEnabled,
-        publisher_id: adSensePubId,
+        publisher_id: adSensePubId.trim(),
+        auto_ads: autoAdsEnabled,
+        test_mode: testModeEnabled,
+        header_ad_enabled: headerAdEnabled,
+        header_slot_id: headerSlotId.trim(),
+        sidebar_ad_enabled: sidebarAdEnabled,
+        sidebar_slot_id: sidebarSlotId.trim(),
+        content_ad_enabled: contentAdEnabled,
+        content_slot_id: contentSlotId.trim(),
+        footer_ad_enabled: footerAdEnabled,
+        footer_slot_id: footerSlotId.trim(),
       });
-      showToast('অ্যাডসেন্স সেটিংস আপডেট হয়েছে');
+      showToast('গুগল অ্যাডসেন্স ও ব্যানার স্লট সেটিংস সফলভাবে সংরক্ষিত হয়েছে');
       loadData();
     } catch (e: any) {
-      alert(e.message);
+      alert(e.message || 'বিজ্ঞাপন সেটিংস সংরক্ষণ ব্যর্থ হয়েছে');
     }
   };
 
@@ -918,40 +954,267 @@ export const AdminDashboardPage: React.FC = () => {
       {/* TAB 7: ADVERTISEMENTS & SPONSORS */}
       {activeTab === 'ads' && (
         <div className="space-y-6">
-          {/* Google AdSense Settings */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
-            <h3 className="text-base font-bold text-slate-900">Google AdSense গ্লোবাল সেটিংস</h3>
-            <form onSubmit={handleSaveAdSettings} className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="adSenseSwitch"
-                  checked={adSenseEnabled}
-                  onChange={(e) => setAdSenseEnabled(e.target.checked)}
-                  className="rounded text-indigo-600 w-4 h-4"
-                />
-                <label htmlFor="adSenseSwitch" className="font-semibold text-slate-800">
-                  Google AdSense ব্যানার বিজ্ঞাপন সক্রিয় রাখুন
-                </label>
+          {/* Google AdSense Full Control Center */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white shadow-xs ${
+                  adSenseEnabled ? 'bg-emerald-600' : 'bg-slate-400'
+                }`}>
+                  G
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <span>Google AdSense ইন্টিগ্রেশন ও অ্যাড আইডি কন্ট্রোল</span>
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                      adSenseEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {adSenseEnabled ? '● অ্যাডসেন্স সক্রিয় (ON)' : '○ অ্যাডসেন্স নিষ্ক্রিয় (OFF)'}
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    বিজ্ঞাপনের ক্লায়েন্ট আইডি, প্রতিটি স্লট আইডি এবং পৃথক অন/অফ সুইচ নির্ধারণ করুন
+                  </p>
+                </div>
               </div>
 
+              {/* Master Switch */}
+              <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 shrink-0">
+                <span className="text-xs font-bold text-slate-700">গুগল অ্যাডসেন্স মাস্টার সুইচ:</span>
+                <button
+                  type="button"
+                  onClick={() => setAdSenseEnabled(!adSenseEnabled)}
+                  className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                    adSenseEnabled ? 'bg-emerald-600 justify-end' : 'bg-slate-300 justify-start'
+                  }`}
+                >
+                  <span className="bg-white w-4 h-4 rounded-full shadow-md"></span>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveAdSettings} className="space-y-6 text-xs">
+              {/* Publisher ID & Global Options */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 rounded-xl bg-slate-50/80 border border-slate-200">
+                <div className="md:col-span-1">
+                  <label className="block font-bold text-slate-800 mb-1">
+                    Google AdSense Publisher ID *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={adSensePubId}
+                    onChange={(e) => setAdSensePubId(e.target.value)}
+                    placeholder="ca-pub-xxxxxxxxxxxxxxxx"
+                    className="w-full p-2.5 bg-white border border-slate-300 rounded-lg font-mono-numbers text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">
+                    গুগল অ্যাডসেন্স অ্যাকাউন্ট পাবলিশার আইডি (যেমন: ca-pub-9847291847192841)
+                  </p>
+                </div>
+
+                <div className="flex flex-col justify-center space-y-2 p-2 bg-white rounded-lg border border-slate-200">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={autoAdsEnabled}
+                      onChange={(e) => setAutoAdsEnabled(e.target.checked)}
+                      className="rounded text-indigo-600 w-4 h-4"
+                    />
+                    <span className="font-semibold text-slate-800">গুগল অটো অ্যাডস (Auto-Ads) চালু রাখুন</span>
+                  </label>
+                  <p className="text-[10px] text-slate-500 pl-6">
+                    গুগলের এআই স্বয়ংক্রিয়ভাবে সর্বোত্তম জায়গায় উপযুক্ত সাইজের বিজ্ঞাপন বসাবে
+                  </p>
+                </div>
+
+                <div className="flex flex-col justify-center space-y-2 p-2 bg-white rounded-lg border border-slate-200">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={testModeEnabled}
+                      onChange={(e) => setTestModeEnabled(e.target.checked)}
+                      className="rounded text-indigo-600 w-4 h-4"
+                    />
+                    <span className="font-semibold text-slate-800">টেস্ট প্রিভিউ মোড (Test Mode)</span>
+                  </label>
+                  <p className="text-[10px] text-slate-500 pl-6">
+                    লাইভ গুগল স্ক্রিপ্টের পরিবর্তে সুরক্ষিত টেস্ট প্রিভিউ ইউনিট প্রদর্শন করবে
+                  </p>
+                </div>
+              </div>
+
+              {/* Individual Slot Toggles & Slot IDs */}
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Publisher ID (পাবলিশার আইডি)</label>
-                <input
-                  type="text"
-                  value={adSensePubId}
-                  onChange={(e) => setAdSensePubId(e.target.value)}
-                  placeholder="ca-pub-xxxxxxxxxxxxxxxx"
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded font-mono-numbers"
-                />
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-sm font-bold text-slate-900">
+                    নির্দিষ্ট প্লেসমেন্ট ও স্লট আইডি কনফিগারেশন (Slot ID Settings)
+                  </h4>
+                  <span className="text-[11px] text-slate-500">প্রতিটি স্লট আলাদাভাবে অন অথবা অফ করা যায়</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Slot 1: Header */}
+                  <div className={`p-4 rounded-xl border transition-all ${
+                    headerAdEnabled ? 'bg-white border-slate-200 shadow-2xs' : 'bg-slate-50 border-slate-200/60 opacity-70'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+                        <span className="font-bold text-slate-900">১. হেডার ব্যানার স্লট (Header 728x90)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          headerAdEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                        }`}>
+                          {headerAdEnabled ? 'অন (ON)' : 'অফ (OFF)'}
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={headerAdEnabled}
+                          onChange={(e) => setHeaderAdEnabled(e.target.checked)}
+                          className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                    <label className="block text-[11px] text-slate-600 font-medium mb-1">
+                      Header Ad Slot ID:
+                    </label>
+                    <input
+                      type="text"
+                      value={headerSlotId}
+                      onChange={(e) => setHeaderSlotId(e.target.value)}
+                      placeholder="e.g. 1234567890"
+                      disabled={!headerAdEnabled}
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded font-mono-numbers text-xs disabled:bg-slate-100 disabled:text-slate-400"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">হোমপেজ ও প্রশ্নপত্রের উপরে প্রদর্শিত হয়</p>
+                  </div>
+
+                  {/* Slot 2: Sidebar */}
+                  <div className={`p-4 rounded-xl border transition-all ${
+                    sidebarAdEnabled ? 'bg-white border-slate-200 shadow-2xs' : 'bg-slate-50 border-slate-200/60 opacity-70'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
+                        <span className="font-bold text-slate-900">২. সাইডবার ব্যানার স্লট (Sidebar 300x250)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          sidebarAdEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                        }`}>
+                          {sidebarAdEnabled ? 'অন (ON)' : 'অফ (OFF)'}
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={sidebarAdEnabled}
+                          onChange={(e) => setSidebarAdEnabled(e.target.checked)}
+                          className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                    <label className="block text-[11px] text-slate-600 font-medium mb-1">
+                      Sidebar Ad Slot ID:
+                    </label>
+                    <input
+                      type="text"
+                      value={sidebarSlotId}
+                      onChange={(e) => setSidebarSlotId(e.target.value)}
+                      placeholder="e.g. 2345678901"
+                      disabled={!sidebarAdEnabled}
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded font-mono-numbers text-xs disabled:bg-slate-100 disabled:text-slate-400"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">প্রশ্নপত্র তালিকা ও প্র্যাকটিস পেজের ডানপাশে প্রদর্শিত হয়</p>
+                  </div>
+
+                  {/* Slot 3: In-Content */}
+                  <div className={`p-4 rounded-xl border transition-all ${
+                    contentAdEnabled ? 'bg-white border-slate-200 shadow-2xs' : 'bg-slate-50 border-slate-200/60 opacity-70'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-600"></span>
+                        <span className="font-bold text-slate-900">৩. ইন-কন্টেন্ট / প্রশ্নপত্রের মাঝে (Fluid)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          contentAdEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                        }`}>
+                          {contentAdEnabled ? 'অন (ON)' : 'অফ (OFF)'}
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={contentAdEnabled}
+                          onChange={(e) => setContentAdEnabled(e.target.checked)}
+                          className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                    <label className="block text-[11px] text-slate-600 font-medium mb-1">
+                      In-Article Slot ID:
+                    </label>
+                    <input
+                      type="text"
+                      value={contentSlotId}
+                      onChange={(e) => setContentSlotId(e.target.value)}
+                      placeholder="e.g. 3456789012"
+                      disabled={!contentAdEnabled}
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded font-mono-numbers text-xs disabled:bg-slate-100 disabled:text-slate-400"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">প্রশ্নের বিশদ সমাধান ও প্রতিটি সেকশনের মাঝে প্রদর্শিত হয়</p>
+                  </div>
+
+                  {/* Slot 4: Footer */}
+                  <div className={`p-4 rounded-xl border transition-all ${
+                    footerAdEnabled ? 'bg-white border-slate-200 shadow-2xs' : 'bg-slate-50 border-slate-200/60 opacity-70'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
+                        <span className="font-bold text-slate-900">৪. ফুটার ব্যানার স্লট (Footer Leaderboard)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                          footerAdEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'
+                        }`}>
+                          {footerAdEnabled ? 'অন (ON)' : 'অফ (OFF)'}
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={footerAdEnabled}
+                          onChange={(e) => setFooterAdEnabled(e.target.checked)}
+                          className="rounded text-indigo-600 w-4 h-4 cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                    <label className="block text-[11px] text-slate-600 font-medium mb-1">
+                      Footer Ad Slot ID:
+                    </label>
+                    <input
+                      type="text"
+                      value={footerSlotId}
+                      onChange={(e) => setFooterSlotId(e.target.value)}
+                      placeholder="e.g. 4567890123"
+                      disabled={!footerAdEnabled}
+                      className="w-full p-2 bg-slate-50 border border-slate-200 rounded font-mono-numbers text-xs disabled:bg-slate-100 disabled:text-slate-400"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">ওয়েবসাইটের নিচের অংশে লিডারবোর্ড ব্যানার হিসেবে প্রদর্শিত হয়</p>
+                  </div>
+                </div>
               </div>
 
-              <div className="md:col-span-2 flex justify-end">
+              {/* Submit Button */}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <span className="text-[11px] text-slate-500">
+                  সংরক্ষণ করার সাথে সাথে সমগ্র ওয়েবসাইটে তাৎক্ষণিকভাবে কার্যকর হবে
+                </span>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-bold text-xs hover:bg-indigo-700"
+                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-xs shadow-xs transition-colors cursor-pointer flex items-center gap-2"
                 >
-                  সেটিংস সেভ করুন
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Google AdSense সেটিংস সংরক্ষণ করুন</span>
                 </button>
               </div>
             </form>

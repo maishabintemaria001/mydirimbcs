@@ -183,9 +183,16 @@ export interface UserEntitlement {
 export interface AdSetting {
   adsense_enabled: boolean;
   publisher_id: string;
+  auto_ads: boolean;
+  test_mode: boolean;
+  header_ad_enabled: boolean;
   header_slot_id: string;
+  sidebar_ad_enabled: boolean;
   sidebar_slot_id: string;
+  content_ad_enabled: boolean;
   content_slot_id: string;
+  footer_ad_enabled: boolean;
+  footer_slot_id: string;
 }
 
 export interface SponsorCampaign {

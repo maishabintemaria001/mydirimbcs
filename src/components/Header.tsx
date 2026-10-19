@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 import { UserRole } from '../types/index.js';
 import { AuthModal } from './AuthModal.js';
 import { FreeAccessGuideModal } from './FreeAccessGuideModal.js';
+import { GlobalSearchModal } from './GlobalSearchModal.js';
 import { 
   User as UserIcon, 
   Shield, 
@@ -19,7 +20,8 @@ import {
   HelpCircle,
   LayoutDashboard,
   Flame,
-  CheckCircle2
+  CheckCircle2,
+  Search
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -29,7 +31,20 @@ export const Header: React.FC = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authInitialTab, setAuthInitialTab] = useState<'login' | 'register'>('login');
   const [freeGuideOpen, setFreeGuideOpen] = useState(false);
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Global Ctrl+K / Cmd+K listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchModalOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleRoleChange = async (role: UserRole) => {
     await switchRole(role);
@@ -96,6 +111,20 @@ export const Header: React.FC = () => {
 
           {/* Zone 3: User Auth / Actions */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Global Search Button */}
+            <button
+              type="button"
+              onClick={() => setSearchModalOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-500 bg-slate-50 hover:bg-slate-100 hover:border-indigo-300 hover:text-slate-900 transition-all cursor-pointer group shadow-2xs"
+              title="প্ল্যাটফর্মের সকল প্রশ্ন, পরীক্ষা ও বিষয় খুঁজুন (Ctrl+K)"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+              <span className="hidden md:inline">অনুসন্ধান...</span>
+              <kbd className="hidden lg:inline-flex items-center gap-0.5 text-[10px] font-mono bg-white border border-slate-200 px-1.5 py-0.2 rounded text-slate-400">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* Free access matrix button */}
             <button
               onClick={() => setFreeGuideOpen(true)}
@@ -170,7 +199,18 @@ export const Header: React.FC = () => {
                         user?.role === 'user' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50'
                       }`}
                     >
-                      👤 ফ্রি শিক্ষার্থী (Free Candidate)
+                      👤 ফ্রি শিক্ষার্থী (Registered Free)
+                    </button>
+                    <button
+                      onClick={() => {
+                        logout();
+                        setUserMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                        !user ? 'bg-slate-100 text-slate-900 font-bold' : 'text-slate-500 hover:bg-slate-50'
+                      }`}
+                    >
+                      🌐 গেস্ট ইউজার (লগইন ছাড়া ফ্রি এক্সেস)
                     </button>
                   </div>
 
@@ -266,26 +306,30 @@ export const Header: React.FC = () => {
               </div>
             ) : (
               <div className="hidden sm:flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    setAuthInitialTab('login');
-                    setAuthModalOpen(true);
-                  }}
-                  className="px-3 py-1.5 text-xs font-bold text-slate-700 hover:text-indigo-600 transition-colors"
+                <Link
+                  to="/login"
+                  className="px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:text-indigo-600 transition-colors rounded-lg hover:bg-slate-100"
                 >
                   লগইন
-                </button>
-                <button
-                  onClick={() => {
-                    setAuthInitialTab('register');
-                    setAuthModalOpen(true);
-                  }}
-                  className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
+                </Link>
+                <Link
+                  to="/register"
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs"
                 >
                   রেজিস্ট্রেশন
-                </button>
+                </Link>
               </div>
             )}
+
+            {/* Mobile Search Button */}
+            <button
+              type="button"
+              onClick={() => setSearchModalOpen(true)}
+              className="lg:hidden p-2 text-slate-600 hover:text-indigo-600 hover:bg-slate-100 rounded-lg transition-colors"
+              aria-label="Global Search"
+            >
+              <Search className="w-5 h-5" />
+            </button>
 
             {/* Mobile menu toggle */}
             <button
@@ -302,6 +346,23 @@ export const Header: React.FC = () => {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 text-xs font-semibold">
+          {/* Quick Mobile Search Button in Drawer */}
+          <button
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen(false);
+              setSearchModalOpen(true);
+            }}
+            className="w-full flex items-center justify-between px-3 py-2 text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-lg font-bold"
+          >
+            <div className="flex items-center gap-2">
+              <Search className="w-4 h-4 text-indigo-600" />
+              <span>গ্লোবাল সার্চ (প্রশ্ন, বিষয় বা পরীক্ষা)</span>
+            </div>
+            <kbd className="text-[10px] bg-white border border-indigo-200 px-1.5 py-0.5 rounded text-indigo-700 font-mono">
+              ⌘K
+            </kbd>
+          </button>
           <Link
             to="/dashboard"
             onClick={() => setMobileMenuOpen(false)}
@@ -365,26 +426,20 @@ export const Header: React.FC = () => {
 
           {!user && (
             <div className="pt-2 border-t border-slate-100 flex gap-2">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setAuthInitialTab('login');
-                  setAuthModalOpen(true);
-                }}
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex-1 py-2 text-center border border-slate-200 rounded-lg text-slate-800 font-bold"
               >
                 লগইন
-              </button>
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setAuthInitialTab('register');
-                  setAuthModalOpen(true);
-                }}
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setMobileMenuOpen(false)}
                 className="flex-1 py-2 text-center bg-indigo-600 text-white rounded-lg font-bold"
               >
                 রেজিস্ট্রেশন
-              </button>
+              </Link>
             </div>
           )}
         </div>
@@ -405,6 +460,11 @@ export const Header: React.FC = () => {
           setAuthInitialTab('login');
           setAuthModalOpen(true);
         }}
+      />
+
+      <GlobalSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
       />
     </header>
   );
