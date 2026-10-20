@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { Bell, Calendar, ArrowLeft } from 'lucide-react';
+import { NoticeSkeleton } from '../components/Skeleton.js';
 
 export const NoticesPage: React.FC = () => {
   const [notices, setNotices] = useState<any[]>([]);
@@ -33,10 +34,7 @@ export const NoticesPage: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-slate-400">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p className="text-xs">বিজ্ঞপ্তি লোড হচ্ছে...</p>
-        </div>
+        <NoticeSkeleton count={4} />
       ) : (
         <div className="space-y-4">
           {notices.map(notice => (

@@ -16,6 +16,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SkillsHeatmapSkeleton } from './Skeleton.js';
 
 interface HeatmapCell {
   session_id: string;
@@ -259,12 +260,7 @@ export const SkillsHeatmap: React.FC<{ candidateId?: string }> = ({ candidateId 
   }, [data, loading]);
 
   if (loading) {
-    return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center text-slate-400 space-y-3 shadow-xs">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="text-xs">স্কিলস হিটম্যাপ অ্যানালাইসিস লোড হচ্ছে...</p>
-      </div>
-    );
+    return <SkillsHeatmapSkeleton />;
   }
 
   if (!data) return null;

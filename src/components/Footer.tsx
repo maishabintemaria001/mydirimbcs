@@ -76,12 +76,26 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© {new Date().getFullYear()} Prerona Exam Portal. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link to="/terms" className="hover:text-slate-400">Terms of Service</Link>
-            <Link to="/privacy" className="hover:text-slate-400">Privacy Policy</Link>
-            <Link to="/refund" className="hover:text-slate-400">Refund Policy</Link>
+        <div className="pt-8 border-t border-slate-800 flex flex-col lg:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 text-center sm:text-left">
+            <p>© {new Date().getFullYear()} Prerona Exam Portal. All rights reserved.</p>
+            <span className="hidden sm:inline text-slate-700">|</span>
+            <p className="flex items-center gap-1.5 text-slate-400">
+              <span>ডেভেলপমেন্ট ও আইটি সাপোর্ট:</span>
+              <a
+                href="https://tazora.it"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-indigo-400 hover:text-indigo-300 font-bold transition-colors hover:underline inline-flex items-center gap-1"
+              >
+                <span>Tazora IT</span>
+              </a>
+            </p>
+          </div>
+          <div className="flex items-center gap-6 text-slate-500">
+            <Link to="/terms" className="hover:text-slate-400 transition-colors">Terms of Service</Link>
+            <Link to="/privacy" className="hover:text-slate-400 transition-colors">Privacy Policy</Link>
+            <Link to="/refund" className="hover:text-slate-400 transition-colors">Refund Policy</Link>
           </div>
         </div>
       </div>

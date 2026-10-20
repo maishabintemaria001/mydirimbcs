@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { AdSlot } from '../components/AdSlot.js';
+import { ExamListSkeleton } from '../components/Skeleton.js';
 import { 
   Clock, 
   Award, 
@@ -49,10 +50,7 @@ export const ExamsPage: React.FC = () => {
         {/* Exam Cards */}
         <div className="lg:col-span-3 space-y-4">
           {loading ? (
-            <div className="py-20 text-center text-slate-400">
-              <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-              <p className="text-xs">মডেল টেস্ট লোড হচ্ছে...</p>
-            </div>
+            <ExamListSkeleton count={4} />
           ) : exams.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-500">
               বর্তমানে কোনো সক্রিয় মডেল টেস্ট নেই। অনুগ্রহ করে কিছুক্ষণ পর আবার দেখুন।

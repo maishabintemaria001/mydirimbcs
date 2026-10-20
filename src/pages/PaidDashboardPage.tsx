@@ -4,6 +4,7 @@ import { ApiClient } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import { SkillsHeatmap } from '../components/SkillsHeatmap.js';
 import { AdSlot } from '../components/AdSlot.js';
+import { DashboardSkeleton } from '../components/Skeleton.js';
 import { 
   Sparkles, 
   Award, 
@@ -67,12 +68,7 @@ export const PaidDashboardPage: React.FC = () => {
   }, [user]);
 
   if (loading) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center space-y-3">
-        <div className="w-10 h-10 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="text-xs text-slate-500 font-medium">শিক্ষার্থী ড্যাশবোর্ড ও অ্যাক্টিভিটি রেকর্ড প্রস্তুত হচ্ছে...</p>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   // Fallback data if needed

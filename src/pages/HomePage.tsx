@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { AdSlot } from '../components/AdSlot.js';
 import { TopPerformersSection } from '../components/TopPerformersSection.js';
+import { Skeleton, QuestionPaperSkeleton, ExamListSkeleton } from '../components/Skeleton.js';
 import { 
   Search, 
   BookOpen, 
@@ -416,8 +417,23 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {data?.featured_papers?.map((paper: any) => (
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-xl bg-white border border-slate-200 p-5 space-y-3">
+                <Skeleton className="w-24 h-4 rounded-md" />
+                <Skeleton className="w-3/4 h-6 rounded-md" />
+                <Skeleton className="w-full h-10 rounded-md" />
+                <div className="pt-3 border-t border-slate-100 flex justify-between">
+                  <Skeleton className="w-16 h-4 rounded-md" />
+                  <Skeleton className="w-20 h-7 rounded-lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {data?.featured_papers?.map((paper: any) => (
             <div
               key={paper.id}
               className="rounded-xl bg-white border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
@@ -470,7 +486,8 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
       </section>
 
       {/* Live Online Exams Section */}
@@ -492,8 +509,26 @@ export const HomePage: React.FC = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {data?.recent_exams?.map((exam: any) => (
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-slate-800/80 border border-slate-700 rounded-xl p-5 space-y-4">
+                  <div className="flex justify-between">
+                    <Skeleton className="w-16 h-4 bg-slate-700" />
+                    <Skeleton className="w-16 h-4 bg-slate-700" />
+                  </div>
+                  <Skeleton className="w-3/4 h-6 bg-slate-700" />
+                  <Skeleton className="w-full h-10 bg-slate-700" />
+                  <div className="pt-4 border-t border-slate-700 flex justify-between">
+                    <Skeleton className="w-20 h-4 bg-slate-700" />
+                    <Skeleton className="w-24 h-8 rounded-lg bg-slate-700" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {data?.recent_exams?.map((exam: any) => (
               <div key={exam.id} className="bg-slate-800/80 border border-slate-700 rounded-xl p-5 flex flex-col justify-between">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs text-slate-400">
@@ -534,7 +569,8 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 

@@ -13,6 +13,7 @@ import {
   AlertCircle,
   ArrowRight
 } from 'lucide-react';
+import { PricingSkeleton } from '../components/Skeleton.js';
 
 export const PremiumPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -154,8 +155,11 @@ export const PremiumPage: React.FC = () => {
       )}
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {packages.map(pkg => (
+      {loading ? (
+        <PricingSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {packages.map(pkg => (
           <div
             key={pkg.id}
             className={`rounded-2xl p-6 bg-white border flex flex-col justify-between transition-all ${
@@ -204,7 +208,8 @@ export const PremiumPage: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Manual Verification & Payment Flow Instructions */}
       <div className="bg-slate-50 rounded-2xl border border-slate-200 p-6 sm:p-8 space-y-6">

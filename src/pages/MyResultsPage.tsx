@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import { SkillsHeatmap } from '../components/SkillsHeatmap.js';
+import { NoticeSkeleton } from '../components/Skeleton.js';
 import { 
   Award, 
   CheckCircle2, 
@@ -106,10 +107,7 @@ export const MyResultsPage: React.FC = () => {
           </div>
 
           {loading ? (
-            <div className="py-20 text-center text-slate-400">
-              <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-              <p className="text-xs">ফলাফল লোড হচ্ছে...</p>
-            </div>
+            <NoticeSkeleton count={4} />
           ) : results.length === 0 ? (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
               <p className="text-slate-500 text-sm">আপনি এখনো কোনো অনলাইন মডেল টেস্টে অংশগ্রহণ করেননি।</p>

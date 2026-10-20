@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
 import { Bookmark, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { NoticeSkeleton } from '../components/Skeleton.js';
 
 export const BookmarksPage: React.FC = () => {
   const { user } = useAuth();
@@ -39,10 +40,7 @@ export const BookmarksPage: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-slate-400">
-          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-          <p className="text-xs">বুকমার্ক লোড হচ্ছে...</p>
-        </div>
+        <NoticeSkeleton count={4} />
       ) : bookmarks.length === 0 ? (
         <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-3">
           <Bookmark className="w-8 h-8 text-slate-300 mx-auto" />

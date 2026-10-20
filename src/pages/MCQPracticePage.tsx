@@ -9,6 +9,7 @@ import {
   RotateCcw,
   Sparkles
 } from 'lucide-react';
+import { MCQPracticeSkeleton } from '../components/Skeleton.js';
 
 export const MCQPracticePage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -48,7 +49,10 @@ export const MCQPracticePage: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {loading ? (
+        <MCQPracticeSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Col: Pick a Question Paper */}
         <div className="space-y-4">
           <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
@@ -126,6 +130,7 @@ export const MCQPracticePage: React.FC = () => {
           )}
         </div>
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
 };

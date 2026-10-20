@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
+import { ExamResultSkeleton } from '../components/Skeleton.js';
 import { 
   Award, 
   CheckCircle2, 
@@ -34,12 +35,7 @@ export const ExamResultPage: React.FC = () => {
   }, [attemptId]);
 
   if (loading) {
-    return (
-      <div className="py-24 text-center text-slate-400 space-y-3">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="text-xs">ফলাফল ও বিশ্লেষণ গণনা হচ্ছে...</p>
-      </div>
-    );
+    return <ExamResultSkeleton />;
   }
 
   if (!data || !data.attempt) {

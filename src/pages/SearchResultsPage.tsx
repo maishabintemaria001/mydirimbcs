@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { AdSlot } from '../components/AdSlot.js';
+import { SearchResultsSkeleton } from '../components/Skeleton.js';
 import { 
   Search, 
   HelpCircle, 
@@ -263,11 +264,10 @@ export const SearchResultsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Loading Spinner */}
+        {/* Loading Skeleton */}
         {loading && (
-          <div className="py-20 text-center space-y-3">
-            <div className="w-10 h-10 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-            <p className="text-xs text-slate-500 font-medium">ফলাফল খোঁজা হচ্ছে...</p>
+          <div className="py-6">
+            <SearchResultsSkeleton />
           </div>
         )}
 

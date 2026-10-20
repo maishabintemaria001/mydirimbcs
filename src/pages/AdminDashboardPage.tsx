@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
+import { DashboardSkeleton } from '../components/Skeleton.js';
 import { 
   BarChart3, 
   FileText, 
@@ -321,6 +322,13 @@ export const AdminDashboardPage: React.FC = () => {
   const isAdmin = user?.role === 'admin';
   const isStudent = user?.role === 'user' || user?.role === 'paid_user';
 
+  // Security guard: Ensure non-admins cannot access or stay on admin-only tabs
+  useEffect(() => {
+    if (!isAdmin && ['payments', 'users', 'ads', 'audit'].includes(activeTab)) {
+      setActiveTab('overview');
+    }
+  }, [isAdmin, activeTab]);
+
   // Guard: If regular student accesses /admin, show friendly redirect
   if (isStudent) {
     return (
@@ -345,6 +353,10 @@ export const AdminDashboardPage: React.FC = () => {
     );
   }
 
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Toast */}
@@ -364,7 +376,7 @@ export const AdminDashboardPage: React.FC = () => {
               কন্টেন্ট ম্যানেজার রোল (Content Manager Access Enabled)
             </h4>
             <p className="text-sky-800 leading-relaxed text-[11.5px]">
-              আপনার অ্যাকাউন্টে প্রশ্নপত্র তৈরি, এমসিকিউ সম্পাদনা, বাল্ক ইম্পোর্ট এবং অনলাইন পরীক্ষা ব্যবস্থাপনার পূর্ণ অনুমতি রয়েছে। পেমেন্ট অনুমোদন, ইউজার রোল অ্যাসাইনমেন্ট এবং বিজ্ঞাপন সেটিংস প্রধান অ্যাডমিনের জন্য সংরক্ষিত।
+              আপনার অ্যাকাউন্টে প্রশ্নপত্র তৈরি, এমসিকিউ সম্পাদনা, বাল্ক ইম্পোর্ট এবং অনলাইন পরীক্ষা ব্যবস্থাপনার পূর্ণ ওয়ার্কস্পেস সক্রিয় রয়েছে।
             </p>
           </div>
         </div>
@@ -415,7 +427,7 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Admin Tabs with Role-based Badges */}
+      {/* Admin Tabs - Admin only tabs are completely hidden from non-admins */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-slate-200 text-xs font-semibold text-slate-600">
         <button
           onClick={() => setActiveTab('overview')}
@@ -450,81 +462,52 @@ export const AdminDashboardPage: React.FC = () => {
           অনলাইন পরীক্ষা ({examsList.length})
         </button>
         
-        {/* Payments Tab (Admin Only or Locked for Content Manager) */}
-        <button
-          onClick={() => setActiveTab('payments')}
-          className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-            activeTab === 'payments' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
-          } ${isContentManager ? 'text-slate-400' : ''}`}
-        >
-          <span>পেমেন্ট অনুমোদন</span>
-          {isContentManager ? (
-            <Lock className="w-3 h-3 text-slate-400" />
-          ) : (
-            paymentsList.filter(p => p.status === 'pending').length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-600 text-white font-mono-numbers">
-                {paymentsList.filter(p => p.status === 'pending').length}
-              </span>
-            )
-          )}
-        </button>
-
-        {/* Users Tab (Admin Only) */}
-        <button
-          onClick={() => setActiveTab('users')}
-          className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-            activeTab === 'users' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
-          } ${isContentManager ? 'text-slate-400' : ''}`}
-        >
-          <span>ব্যবহারকারী ও রোল ({usersList.length})</span>
-          {isContentManager && <Lock className="w-3 h-3 text-slate-400" />}
-        </button>
-
-        {/* Ads Tab (Admin Only) */}
-        <button
-          onClick={() => setActiveTab('ads')}
-          className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-            activeTab === 'ads' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
-          } ${isContentManager ? 'text-slate-400' : ''}`}
-        >
-          <span>বিজ্ঞাপন ও স্পন্সর</span>
-          {isContentManager && <Lock className="w-3 h-3 text-slate-400" />}
-        </button>
-
-        {/* Audit Tab (Admin Only) */}
-        <button
-          onClick={() => setActiveTab('audit')}
-          className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
-            activeTab === 'audit' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
-          } ${isContentManager ? 'text-slate-400' : ''}`}
-        >
-          <span>অডিট লগ</span>
-          {isContentManager && <Lock className="w-3 h-3 text-slate-400" />}
-        </button>
-      </div>
-
-      {/* Content Manager Restricted Notice for Locked Tabs */}
-      {isContentManager && ['payments', 'users', 'ads', 'audit'].includes(activeTab) && (
-        <div className="bg-amber-50 border border-amber-300 rounded-xl p-6 text-center space-y-3">
-          <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto">
-            <Lock className="w-6 h-6" />
-          </div>
-          <h3 className="text-base font-bold text-amber-950">
-            এই ট্যাবটি শুধুমাত্র প্রধান অ্যাডমিনের জন্য সংরক্ষিত
-          </h3>
-          <p className="text-xs text-amber-900 max-w-md mx-auto leading-relaxed">
-            কন্টেন্ট ম্যানেজার অ্যাকাউন্টে আর্থিক লেনদেন অনুমোদন, নতুন ব্যবহারকারীর রোল পরিবর্তন ও সিস্টেম সেটিংস পরিবর্তনের অনুমতি নেই।
-          </p>
-          <div className="pt-2">
+        {/* Admin-only Tabs: completely hidden for content managers */}
+        {isAdmin && (
+          <>
             <button
-              onClick={() => setActiveTab('questions')}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg"
+              onClick={() => setActiveTab('payments')}
+              className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                activeTab === 'payments' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
+              }`}
             >
-              প্রশ্নপত্র ব্যবস্থাপনায় ফিরে যান
+              <span>পেমেন্ট অনুমোদন</span>
+              {paymentsList.filter(p => p.status === 'pending').length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-rose-600 text-white font-mono-numbers">
+                  {paymentsList.filter(p => p.status === 'pending').length}
+                </span>
+              )}
             </button>
-          </div>
-        </div>
-      )}
+
+            <button
+              onClick={() => setActiveTab('users')}
+              className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                activeTab === 'users' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
+              }`}
+            >
+              <span>ব্যবহারকারী ও রোল ({usersList.length})</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('ads')}
+              className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                activeTab === 'ads' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
+              }`}
+            >
+              <span>বিজ্ঞাপন ও স্পন্সর</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('audit')}
+              className={`px-3 py-2 border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5 ${
+                activeTab === 'audit' ? 'border-indigo-600 text-indigo-600 font-bold' : 'border-transparent hover:text-slate-900'
+              }`}
+            >
+              <span>অডিট লগ</span>
+            </button>
+          </>
+        )}
+      </div>
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === 'overview' && (
@@ -551,48 +534,77 @@ export const AdminDashboardPage: React.FC = () => {
               </span>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <span className="text-xs text-slate-500 font-medium">মোট রাজস্ব আয়</span>
-              <p className="text-2xl font-extrabold text-emerald-600 font-mono-numbers mt-1">
-                ৳{dashboardData?.metrics?.total_revenue_bdt || 0}
-              </p>
-              <span className="text-[11px] text-slate-500">অনুমোদিত লেনদেন হতে</span>
-            </div>
+            {isAdmin ? (
+              <>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs text-slate-500 font-medium">মোট রাজস্ব আয়</span>
+                  <p className="text-2xl font-extrabold text-emerald-600 font-mono-numbers mt-1">
+                    ৳{dashboardData?.metrics?.total_revenue_bdt || 0}
+                  </p>
+                  <span className="text-[11px] text-slate-500">অনুমোদিত লেনদেন হতে</span>
+                </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
-              <span className="text-xs text-slate-500 font-medium">অপেক্ষমাণ পেমেন্ট</span>
-              <p className="text-2xl font-extrabold text-amber-600 font-mono-numbers mt-1">
-                {dashboardData?.metrics?.pending_payments_count || 0} টি
-              </p>
-              <button
-                onClick={() => setActiveTab('payments')}
-                className="text-[11px] text-indigo-600 font-semibold underline mt-0.5 block"
-              >
-                এখনই ভেরিফাই করুন →
-              </button>
-            </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs text-slate-500 font-medium">অপেক্ষমাণ পেমেন্ট</span>
+                  <p className="text-2xl font-extrabold text-amber-600 font-mono-numbers mt-1">
+                    {dashboardData?.metrics?.pending_payments_count || 0} টি
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('payments')}
+                    className="text-[11px] text-indigo-600 font-semibold underline mt-0.5 block"
+                  >
+                    এখনই ভেরিফাই করুন →
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs text-slate-500 font-medium">অনলাইন পরীক্ষা</span>
+                  <p className="text-2xl font-extrabold text-emerald-600 font-mono-numbers mt-1">
+                    {examsList.length} টি
+                  </p>
+                  <span className="text-[11px] text-slate-500">লাইভ ও শিডিউলড এক্সাম</span>
+                </div>
+
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs">
+                  <span className="text-xs text-slate-500 font-medium">মোট এমসিকিউ প্রশ্ন</span>
+                  <p className="text-2xl font-extrabold text-indigo-600 font-mono-numbers mt-1">
+                    {dashboardData?.metrics?.total_questions || 0} টি
+                  </p>
+                  <button
+                    onClick={() => setActiveTab('questions')}
+                    className="text-[11px] text-indigo-600 font-semibold underline mt-0.5 block"
+                  >
+                    প্রশ্ন তালিকা দেখুন →
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Recent Orders & Recent Attempts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-              <h3 className="text-sm font-bold text-slate-900">সাম্প্রতিক সাবস্ক্রিপশন অর্ডার</h3>
-              <div className="divide-y divide-slate-100 text-xs">
-                {dashboardData?.recent_orders?.map((ord: any) => (
-                  <div key={ord.id} className="py-2.5 flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold text-slate-800">{ord.user_name}</p>
-                      <p className="text-slate-400 font-mono-numbers">{ord.package_name} · ৳{ord.amount_bdt}</p>
+          {/* Recent Orders & Recent Attempts Grid: Recent Orders (Payments) only shown to Master Admin */}
+          <div className={`grid grid-cols-1 ${isAdmin ? 'lg:grid-cols-2' : ''} gap-6`}>
+            {isAdmin && (
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+                <h3 className="text-sm font-bold text-slate-900">সাম্প্রতিক সাবস্ক্রিপশন অর্ডার</h3>
+                <div className="divide-y divide-slate-100 text-xs">
+                  {dashboardData?.recent_orders?.map((ord: any) => (
+                    <div key={ord.id} className="py-2.5 flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-slate-800">{ord.user_name}</p>
+                        <p className="text-slate-400 font-mono-numbers">{ord.package_name} · ৳{ord.amount_bdt}</p>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        ord.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
+                      }`}>
+                        {ord.status}
+                      </span>
                     </div>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      ord.status === 'approved' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'
-                    }`}>
-                      {ord.status}
-                    </span>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
               <h3 className="text-sm font-bold text-slate-900">সাম্প্রতিক পরীক্ষার অংশগ্রহণ</h3>
@@ -813,8 +825,8 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 5: PAYMENTS APPROVAL (Crucial for Section 9 & 10) */}
-      {activeTab === 'payments' && (
+      {/* TAB 5: PAYMENTS APPROVAL (Admin Only) */}
+      {activeTab === 'payments' && isAdmin && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
           <div>
             <h3 className="text-base font-bold text-slate-900">পেমেন্ট রিকোয়েস্ট ভেরিফিকেশন ও অনুমোদন</h3>
@@ -895,8 +907,8 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 6: USERS & ROLES */}
-      {activeTab === 'users' && (
+      {/* TAB 6: USERS & ROLES (Admin Only) */}
+      {activeTab === 'users' && isAdmin && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
           <h3 className="text-base font-bold text-slate-900">ব্যবহারকারী ও অনুমতি নির্ধারণ</h3>
 
@@ -951,8 +963,8 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 7: ADVERTISEMENTS & SPONSORS */}
-      {activeTab === 'ads' && (
+      {/* TAB 7: ADVERTISEMENTS & SPONSORS (Admin Only) */}
+      {activeTab === 'ads' && isAdmin && (
         <div className="space-y-6">
           {/* Google AdSense Full Control Center */}
           <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
@@ -1266,8 +1278,8 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 8: AUDIT LOGS */}
-      {activeTab === 'audit' && (
+      {/* TAB 8: AUDIT LOGS (Admin Only) */}
+      {activeTab === 'audit' && isAdmin && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-4">
           <h3 className="text-base font-bold text-slate-900">সিস্টেম সিকিউরিটি ও অডিট লগ</h3>
           <div className="divide-y divide-slate-100 text-xs">

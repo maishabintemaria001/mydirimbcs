@@ -21,13 +21,15 @@ import { AdminDashboardPage } from './pages/AdminDashboardPage.js';
 import { PaidDashboardPage } from './pages/PaidDashboardPage.js';
 import { LoginPage } from './pages/LoginPage.js';
 import { SearchResultsPage } from './pages/SearchResultsPage.js';
+import { ThemeProvider } from './context/ThemeContext.js';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-indigo-600 selection:text-white">
-          <Header />
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-600 selection:text-white transition-colors duration-200 overflow-x-hidden">
+            <Header />
           <main className="flex-1">
             <Routes>
               {/* Public Routes */}
@@ -102,5 +104,6 @@ export default function App() {
         </div>
       </BrowserRouter>
     </AuthProvider>
+  </ThemeProvider>
   );
 }

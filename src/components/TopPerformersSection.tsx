@@ -13,6 +13,7 @@ import {
   Target
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { LeaderboardSkeleton } from './Skeleton.js';
 
 interface Performer {
   user_id: string;
@@ -380,6 +381,10 @@ export const TopPerformersSection: React.FC = () => {
 
     g.select('.domain').remove();
   };
+
+  if (loading || !data) {
+    return <LeaderboardSkeleton />;
+  }
 
   return (
     <section className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-xs space-y-6">

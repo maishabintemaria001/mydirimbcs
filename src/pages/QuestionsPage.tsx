@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { AdSlot } from '../components/AdSlot.js';
+import { QuestionPaperSkeleton } from '../components/Skeleton.js';
 import { 
   Search, 
   Filter, 
@@ -246,10 +247,7 @@ export const QuestionsPage: React.FC = () => {
           </div>
 
           {loading ? (
-            <div className="py-20 text-center text-slate-400 space-y-3">
-              <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-xs">প্রশ্নপত্র লোড হচ্ছে...</p>
-            </div>
+            <QuestionPaperSkeleton count={5} />
           ) : papers.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-4">
               <p className="text-slate-400 text-sm">কোনো প্রশ্নপত্র পাওয়া যায়নি। ফিল্টার পরিবর্তন করে আবার চেষ্টা করুন।</p>

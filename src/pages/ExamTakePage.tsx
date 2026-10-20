@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ApiClient } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.js';
+import { QuestionDetailSkeleton } from '../components/Skeleton.js';
 import { 
   Clock, 
   AlertTriangle, 
@@ -153,12 +154,7 @@ export const ExamTakePage: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="py-24 text-center text-slate-400 space-y-3">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        <p className="text-xs">মডেল টেস্ট প্ল্যাটফর্ম প্রস্তুত হচ্ছে...</p>
-      </div>
-    );
+    return <QuestionDetailSkeleton count={5} />;
   }
 
   if (isRestricted) {
